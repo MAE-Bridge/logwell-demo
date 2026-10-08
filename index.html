@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <title>LogWell | MAE Bridge demonstration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="LogWell public demonstration: structured log search, error correlation, and diagnostic analysis with synthetic sample data." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+<body>
+  <div class="banner">
+    <p class="font-medium">MAE Bridge Demonstration Environment</p>
+    <p class="sub">Uses synthetic sample data</p>
+  </div>
+
+  <div id="landing">
+    <main class="landing-main">
+      <div class="brand-row">
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+        </span>
+        <div>
+          <p class="eyebrow">MAE Bridge</p>
+          <h1>LogWell</h1>
+        </div>
+      </div>
+      <p class="lede">Centralized structured logs, search, error correlation, and diagnostic analysis — a public demonstration with five synthetic services and known failure modes.</p>
+      <div class="about-card">
+        <h2>About this demo</h2>
+        <div class="about-copy">
+          <p>An application log intelligence demonstration developed by MAE Bridge. Click around the dashboard, or press <strong>Play demo</strong> for a guided walkthrough of a Payments.Api SQL timeout and <strong>Analyze with AI</strong>.</p>
+          <p class="caps">Highlights</p>
+          <ul>
+            <li>Application and environment health</li>
+            <li>Structured search and filter</li>
+            <li>Error correlation and surrounding context</li>
+            <li>LLM-assisted root-cause analysis</li>
+            <li>Next.js / TypeScript collector architecture</li>
+          </ul>
+          <p>All data in this environment is synthetic. Diagnostic text is served from cached analyses that only cite fields present on the selected event.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="enter-demo">Enter Demo</button>
+        <button type="button" class="btn btn-outline" id="play-demo">Play demo</button>
+        <a class="link-quiet" href="https://maebridge.com/work">Visit MAE Bridge</a>
+      </div>
+      <p class="hint">No account required. Enter Demo lets you click around. Play demo runs a short guided walkthrough; you can pause it and keep exploring.</p>
+    </main>
+  </div>
+
+  <div id="app" class="hidden">
+  <div class="tour-bar hidden" id="tour-bar">
+    <p id="tour-caption"></p>
+    <div class="tour-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="tour-pause">Pause</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="tour-stop">Stop</button>
+    </div>
+  </div>
+    <header class="app-header">
+      <span class="mark" aria-hidden="true">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+      </span>
+      <div>
+        <h1>Logwell</h1>
+        <p class="sub">Synthetic log intelligence demo</p>
+      </div>
+      <span class="env-pill">demo</span>
+      <div class="header-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="play-demo-header">Play demo</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="about-open">About this demo</button>
+        <a class="btn btn-ghost btn-sm hide-narrow" href="https://maebridge.com/work">Visit MAE Bridge</a>
+        <button type="button" class="btn btn-outline btn-sm filters-btn" id="filters-btn">Filters</button>
+      </div>
+    </header>
+    <div class="shell">
+      <button type="button" class="scrim hidden" id="scrim" aria-label="Close filters"></button>
+      <aside class="sidebar" id="sidebar">
+        <div class="side-section sidebar-close">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+            <p style="margin:0;font-size:0.875rem;font-weight:500">Filters</p>
+            <button type="button" class="btn btn-ghost btn-xs" id="sidebar-close">Close</button>
+          </div>
+        </div>
+        <section class="side-section">
+          <h2>Applications</h2>
+          <div id="filter-sources"></div>
+        </section>
+        <section class="side-section">
+          <h2>Environment</h2>
+          <div id="filter-envs"></div>
+        </section>
+        <section class="side-section">
+          <h2>Severity</h2>
+          <div id="filter-levels"></div>
+        </section>
+        <section class="side-section">
+          <h2>Exception type</h2>
+          <div id="filter-exceptions"></div>
+        </section>
+        <section class="side-section">
+          <h2>Hosts</h2>
+          <div id="filter-hosts"></div>
+        </section>
+      </aside>
+      <main class="main">
+        <div class="controls">
+          <div id="health-grid" class="health-grid"></div>
+          <div id="env-chips" class="env-chips"></div>
+          <form id="search-form" class="search-row">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="search" type="search" placeholder="Search by level, service, or message" autocomplete="off" />
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+          </form>
+          <div class="range-row">
+            <div class="range-group" id="ranges"></div>
+            <label class="live-toggle">
+              <button type="button" class="switch" id="live-switch" role="switch" aria-checked="false"><span></span></button>
+              Live
+            </label>
+            <button type="button" class="btn btn-ghost btn-xs hidden" id="clear-brush">Clear time brush</button>
+          </div>
+          <div class="histogram">
+            <div class="histogram-bars" id="histogram-bars"></div>
+            <div class="histogram-labels">
+              <span id="hist-start"></span>
+              <span>volume</span>
+              <span id="hist-end"></span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span id="match-meta"></span>
+            <span class="seed">synthetic snapshot · seeded incidents, not live production traffic</span>
+          </div>
+        </div>
+        <div class="stream-wrap">
+          <div class="stream" id="stream"></div>
+          <aside class="inspector hidden" id="inspector"></aside>
+        </div>
+        <footer class="footer">
+          <span>Newest first</span>
+          <span class="hint">Click a row to inspect fields, stack, correlation, and analysis</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <div class="dialog-backdrop hidden" id="about-dialog">
+    <div class="dialog" role="dialog" aria-labelledby="about-title">
+      <h2 id="about-title">About this demo</h2>
+      <p class="desc">LogWell · MAE Bridge demonstration</p>
+      <div class="about-copy">
+        <p>An application log intelligence demonstration developed by MAE Bridge. Click around the dashboard, or press <strong>Play demo</strong> for a guided walkthrough of a Payments.Api SQL timeout and <strong>Analyze with AI</strong>.</p>
+        <p class="caps">Highlights</p>
+        <ul>
+          <li>Application and environment health</li>
+          <li>Structured search and filter</li>
+          <li>Error correlation and surrounding context</li>
+          <li>LLM-assisted root-cause analysis</li>
+          <li>Next.js / TypeScript collector architecture</li>
+        </ul>
+        <p>All data in this environment is synthetic. Diagnostic text is served from cached analyses that only cite fields present on the selected event.</p>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="about-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="demo.js"></script>
+</body>
+</html>
