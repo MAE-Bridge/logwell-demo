@@ -7,7 +7,6 @@ All data is synthetic. Safe for anonymous recruiter and client review — no pro
 ## Live demo
 
 - https://maebridge.com/work/logwell
-- https://logwell.maebridge.com
 
 ## Run locally
 
